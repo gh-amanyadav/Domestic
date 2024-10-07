@@ -17,8 +17,8 @@ const AdminLiveData = () => {
         const fetchData = async () => {
             try {
                 const response = await getAllLiveData(token); // Replace with your API endpoint
-                setTableData(response.data); // Adjust according to the structure of your API response
-                setFilteredData(response.data); // Initialize filtered data
+                setTableData(response); // Adjust according to the structure of your API response
+                setFilteredData(response); // Initialize filtered data
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -211,7 +211,7 @@ const AdminLiveData = () => {
                     <tr>
                         <th style={styles.tableHeader}>S.No</th>
                         <th style={styles.tableHeader}>Device ID</th>
-                        <th style={styles.tableHeader}>TDS</th>
+                        <th style={styles.tableHeader}>Cost</th>
                         <th style={styles.tableHeader}>Liters Remaining</th>
                         <th style={styles.tableHeader}>Current Plan</th>
                         <th style={styles.tableHeader}>Total Liters</th>
@@ -219,27 +219,19 @@ const AdminLiveData = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.length > 0 ? (
-                        filteredData.map((row, index) => (
-                            <tr key={index}>
-                                <td style={styles.tableRow}>{index + 1}</td>
-                                <td style={styles.tableRow}>{row.deviceId}</td>
-                                <td style={styles.tableRow}>{row.tds}</td>
-                                <td style={styles.tableRow}>{row.litersRemaining}</td>
-                                <td style={styles.tableRow}>{row.currentPlan}</td>
-                                <td style={styles.tableRow}>{row.totalLiters}</td>
-                                <td style={styles.tableRow}>
-                                    <span style={styles.status(row.status)}>{row.status}</span>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="7" style={{ textAlign: "center" }}>
-                                No data available
+                    {filteredData.map((row, index) => (
+                        <tr key={index}>
+                            <td style={styles.tableRow}>{index + 1}</td>
+                            <td style={styles.tableRow}>{row.device_id.slice(-5)}</td>
+                            <td style={styles.tableRow}>{row.cost}</td>
+                            <td style={styles.tableRow}>{row.liters_remaining}</td>
+                            <td style={styles.tableRow}>{row.current_plan}</td>
+                            <td style={styles.tableRow}>{row.total_liters}</td>
+                            <td style={styles.tableRow}>
+                                <span style={styles.status(row.status)}>{row.status}</span>
                             </td>
                         </tr>
-                    )}
+                    ))}
                 </tbody>
             </table>
             <button style={styles.downloadButton}>Download as Excel</button>

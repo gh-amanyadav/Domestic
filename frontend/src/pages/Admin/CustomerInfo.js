@@ -156,8 +156,7 @@ const CustomerInfo = () => {
     const fetchData = async () => {
         try {
             const response = await getallCustomer(token); // Replace with your actual API endpoint
-            const result = await response.json();
-            setData(result.customers); // Adjust based on your API response structure
+            setData(response); // Adjust based on your API response structure
         } catch (error) {
             console.error('Error fetching data:', error);
         }

@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import SuperAdminNavbar from '../Navbar/Superadmin-Navbar'; // Navbar component
 import DeviceTable from '../DeviceTable'; // New component for device table
+import { getAllDevices } from '../../services/deviceService';
 
 const SuperAdminDashboard = () => {
     const [deviceData, setDeviceData] = useState([]);
     const [loading, setLoading] = useState(true); // For loading state
     const [error, setError] = useState(null); // For error handling
 
+    const token = localStorage.getItem('token');
+
     useEffect(() => {
         const fetchDeviceData = async () => {
             try {
-                setLoading(true); // Start loading
-                const response = await fetch('http://localhost:5000/api/device/getAllDeviceInfo'); // Your API endpoint
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`); // Handle response errors
-                }
-                const data = await response.json();
-                setDeviceData(data); // Assuming the API returns an array of devices
+                setLoading(true);
+                const data = await getAllDevices(token);
+                console.log(data);
+                setDeviceData(data);
             } catch (err) {
-                setError(err.message); // Catch any errors
+                setError(err.message || 'An error occurred while fetching device data');
             } finally {
-                setLoading(false); // End loading
+                setLoading(false);
             }
         };
 
         fetchDeviceData();
-    }, []);
+    }, [token]);
+
 
     if (loading) {
         return <div>Loading...</div>; // Show loading message

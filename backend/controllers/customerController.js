@@ -51,7 +51,7 @@ exports.getCustomer = async (req, res) => {
 
 exports.getallCustomer = async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find({role: "customer"});
 
         res.json(users);
     } catch (error) {
