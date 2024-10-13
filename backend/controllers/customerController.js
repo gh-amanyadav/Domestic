@@ -49,6 +49,47 @@ exports.getCustomer = async (req, res) => {
     }
 };
 
+// Update Customer
+exports.updateCustomer = async (req, res) => {
+    const { username, email, phoneNo, location } = req.body;
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.username = username || user.username;
+        user.email = email || user.email;
+        user.phoneNo = phoneNo || user.phoneNo;
+        user.location = location || user.location;
+
+        await user.save();
+
+        res.json({ message: 'User updated successfully', user });
+    } catch (error) {
+        res.status(500).json({ error: 'Error updating user' });
+    }
+};
+
+// Delete Customer
+exports.deleteCustomer = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        await user.remove();
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting user' });
+    }
+};
+
 exports.getallCustomer = async (req, res) => {
     try {
         const users = await User.find({role: "customer"});

@@ -8,4 +8,6 @@ router.get('/getdeviceInfo', roleMiddleware(['customer']), customerController.ge
 router.get('/getLivedata', roleMiddleware(['customer']), customerController.getLivedata);
 router.get('/createCustomer', roleMiddleware(['admin', 'superadmin']), customerController.createCustomer);
 router.get('/getallCustomer', roleMiddleware(['admin', 'superadmin']), customerController.getallCustomer);
+router.get('/updateCustomer', roleMiddleware(['admin', 'customer']), customerController.updateCustomer);
+router.get('/deleteCustomer', roleMiddleware(['admin']), customerController.getallCustomer);
 module.exports = router;

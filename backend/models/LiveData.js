@@ -9,8 +9,12 @@ const liveDataSchema = new Schema({
     current_plan: { type: String, required: true },
     total_liters: { type: Number, required: true },
     status: { type: String, required: true },
-    created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        expires: 7200 // 7200 seconds = 2 hours
+    }
 });
 
 module.exports = mongoose.model('LiveData', liveDataSchema);
