@@ -69,17 +69,17 @@ exports.updateDevice = async (req, res) => {
 
 // Delete Device Info
 exports.deleteDevice = async (req, res) => {
-    const { deviceId } = req.params.deviceId;
+    const deviceId = req.params.deviceId;
 
     try {
-        const device = await Device.findById(deviceId);
-        if (!device) {
+        const result = await Device.findByIdAndDelete(deviceId);
+        if (!result) {
             return res.status(404).json({ error: 'Device not found' });
         }
 
-        await device.remove();
         res.json({ message: 'Device deleted successfully' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error deleting device' });
     }
 };
