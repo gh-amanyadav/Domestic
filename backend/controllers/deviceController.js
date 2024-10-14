@@ -1,14 +1,8 @@
 const Device = require('../models/Device');
 
 exports.addDevice = async (req, res) => {
-    const { data } = req.query;
 
-    // Check if 'data' query parameter is provided
-    if (!data) {
-        return next(errorHandler(400, 'Data field must be provided'));
-    }
-
-    const [user_id, device_plan, expiry, phone_no] = data.split(',');
+    const {user_id, device_plan, expiry, phone_no} = req.body;
 
     // Check if all required fields are provided
     if (!user_id || !device_plan || !phone_no || !expiry ) {
@@ -34,9 +28,24 @@ exports.getAllDeviceInfo = async (req, res) => {
     }
 };
 
+exports.getDeviceById = async (req, res) => {
+    const deviceId = req.params.deviceId;
+
+    try {
+        const device = await Device.findById(deviceId);
+        if (!device) {
+            return res.status(404).json({ error: 'Device not found' });
+        }   
+
+        res.json({ device });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching device' });
+    }
+};
+
 // Update Device Info
 exports.updateDevice = async (req, res) => {
-    const { deviceId } = req.params;
+    const deviceId= req.params.deviceId;
     const {user_id, device_plan, expiry, phone_no} = req.body;
 
     try {
@@ -60,7 +69,7 @@ exports.updateDevice = async (req, res) => {
 
 // Delete Device Info
 exports.deleteDevice = async (req, res) => {
-    const { deviceId } = req.params;
+    const { deviceId } = req.params.deviceId;
 
     try {
         const device = await Device.findById(deviceId);

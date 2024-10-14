@@ -26,6 +26,7 @@ exports.createCustomer = async (req, res) => {
 
 
 exports.getCustomer = async (req, res) => {
+    console.log(req);
     const { userId } = req.userId;
     try {
         const users = await User.find({ userId });
@@ -49,10 +50,27 @@ exports.getCustomer = async (req, res) => {
     }
 };
 
+exports.getCustomerById = async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+
+        const customer = await User.findById(customerId);
+
+        if (!customer) {
+            return res.status(404).json({ message: 'Customer not found' });
+        }
+
+        res.status(200).json(customer);
+    } catch (error) {
+        console.error('Error fetching customer:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 // Update Customer
 exports.updateCustomer = async (req, res) => {
     const { username, email, phoneNo, location } = req.body;
-    const { userId } = req.params;
+    const userId = req.params.customerId;
 
     try {
         const user = await User.findById(userId);
@@ -75,7 +93,7 @@ exports.updateCustomer = async (req, res) => {
 
 // Delete Customer
 exports.deleteCustomer = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params.customerId;
 
     try {
         const user = await User.findById(userId);
@@ -92,7 +110,7 @@ exports.deleteCustomer = async (req, res) => {
 
 exports.getallCustomer = async (req, res) => {
     try {
-        const users = await User.find({role: "customer"});
+        const users = await User.find({ role: "customer" });
 
         res.json(users);
     } catch (error) {

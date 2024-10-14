@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { useSelector } from 'react-redux';
-import { getallCustomer } from '../../services/customerService';
+import { getallCustomer, deleteCustomer } from '../../services/customerService';
+import { Link } from 'react-router-dom';
 
 const styles = {
     body: {
@@ -145,6 +146,35 @@ const styles = {
             margin: '10px 0 0 0',
         },
     },
+    addCustomerContainer: {
+        marginBottom: '20px',
+        textAlign: 'right',
+    },
+    addCustomerButton: {
+        padding: '10px 20px',
+        backgroundColor: '#28a745',
+        color: 'white',
+        textDecoration: 'none',
+        borderRadius: '4px',
+        fontWeight: 'bold',
+    },
+    editButton: {
+        padding: '5px 10px',
+        backgroundColor: '#ffc107',
+        color: 'black',
+        border: 'none',
+        borderRadius: '4px',
+        marginRight: '5px',
+        cursor: 'pointer',
+    },
+    deleteButton: {
+        padding: '5px 10px',
+        backgroundColor: '#dc3545',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+    },
 };
 
 const CustomerInfo = () => {
@@ -182,6 +212,22 @@ const CustomerInfo = () => {
         window.location.href = '/admin';
     };
 
+    const handleEdit = (customerId) => {
+        // Navigate to edit customer page
+        window.location.href = `/admin/edit-customer/${customerId}`;
+    };
+
+    const handleDelete = async (customerId) => {
+        if (window.confirm('Are you sure you want to delete this customer?')) {
+            try {
+                await deleteCustomer(token, customerId);
+                fetchData(); // Refresh the customer list
+            } catch (error) {
+                console.error('Error deleting customer:', error);
+            }
+        }
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.returnBox}>
@@ -214,6 +260,11 @@ const CustomerInfo = () => {
                     Search
                 </button>
             </div>
+            <div style={styles.addCustomerContainer}>
+                <Link to="/admin/create-customer" style={styles.addCustomerButton}>
+                    Create Customer
+                </Link>
+            </div>
             <div style={styles.tableContainer}>
                 <table style={styles.table} id="customerTable">
                     <thead>
@@ -223,6 +274,7 @@ const CustomerInfo = () => {
                             <th style={styles.tableTh}>Email</th>
                             <th style={styles.tableTh}>Phone</th>
                             <th style={styles.tableTh}>Location</th>
+                            <th style={styles.tableTh}>Actions</th>
                             {/* Add other customer fields as necessary */}
                         </tr>
                     </thead>
@@ -233,14 +285,28 @@ const CustomerInfo = () => {
                                     <td style={styles.tableTd}>{index + 1}</td>
                                     <td style={styles.tableTd}>{row.username}</td>
                                     <td style={styles.tableTd}>{row.email}</td>
-                                    <td style={styles.tableTd}>{row.phone}</td>
+                                    <td style={styles.tableTd}>{row.phoneNo}</td>
                                     <td style={styles.tableTd}>{row.location}</td>
+                                    <td style={styles.tableTd}>
+                                        <button
+                                            onClick={() => handleEdit(row._id)}
+                                            style={styles.editButton}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(row._id)}
+                                            style={styles.deleteButton}
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
                                     {/* Adjust based on your customer data structure */}
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" style={styles.emptyRow}>No data available</td>
+                                <td colSpan="6" style={styles.emptyRow}>No data available</td>
                             </tr>
                         )}
                     </tbody>

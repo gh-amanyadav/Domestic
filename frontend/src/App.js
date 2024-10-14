@@ -18,7 +18,10 @@ import SuperAdminCustomerInfo from './pages/SuperAdmin/SuperAdminCustomerInfo';
 import SuperAdminLiveData from './pages/SuperAdmin/SuperAdminLiveData';
 import SuperAdminRecharge from './pages/SuperAdmin/SuperAdminRecharge';
 import SuperAdminTransaction from './pages/SuperAdmin/SuperAdminTransaction';
-
+import CreateCustomer from './pages/Admin/CreateCustomer';
+import EditCustomer from './pages/Admin/EditCustomer';
+import CreateDevice from './pages/Admin/CreateDevice';
+import UpdateDevice from './pages/Admin/UpdateDevice';
 
 function App() {
   return (
@@ -35,12 +38,16 @@ function App() {
         <Route path="/customer/transaction" element={<ProtectedRoute allowedRoles={['customer']}><Transaction /></ProtectedRoute>} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['admin']}><Profile /></ProtectedRoute>} />
-        <Route path="/admin/customerInfo" element={<ProtectedRoute allowedRoles={['admin']}><CustomerInfo /></ProtectedRoute>} />
+        <Route path="/admin/customerInfo" element={<CustomerInfo />} />
         <Route path="/admin/liveData" element={<ProtectedRoute allowedRoles={['admin']}><AdminLiveData /></ProtectedRoute>} />
         <Route path="/admin/recharge" element={<ProtectedRoute allowedRoles={['admin']}><AdminRecharge /></ProtectedRoute>} />
         <Route path="/admin/transaction" element={<ProtectedRoute allowedRoles={['admin']}><AdminTransaction /></ProtectedRoute>} />
+        <Route path="/admin/create-customer" element={<ProtectedRoute allowedRoles={['admin']}><CreateCustomer /></ProtectedRoute>} />
+        <Route path="/admin/edit-customer/:customerId" element={<ProtectedRoute allowedRoles={['admin']}><EditCustomer /></ProtectedRoute>} />
+        <Route path="/admin/createDevice" element={<ProtectedRoute allowedRoles={['admin']}><CreateDevice /></ProtectedRoute>} />
+        <Route path="/admin/updateDevice/:deviceId" element={<ProtectedRoute allowedRoles={['admin']}><UpdateDevice /></ProtectedRoute>} />
 
         {/* SuperAdmin Routes */}
         <Route path="/superadmin" element={<ProtectedRoute allowedRoles={['superadmin']}><SuperAdminDashboard /></ProtectedRoute>} />
