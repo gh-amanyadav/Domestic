@@ -13,17 +13,17 @@ const LiveData = () => {
     const { token } = useSelector(state => state.auth);
 
     // Fetch data from API when component mounts
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getLiveData(token); // Replace with your API URL
-                // const data = await response.json();
-                setTableData(response);
-                setFilteredData(response); // Initialize filtered data
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const response = await getLiveData(token); // Replace with your API URL
+    //             // const data = await response.json();
+    //             setTableData(response);
+    //             setFilteredData(response); // Initialize filtered data
+    //         } catch (error) {
+    //             console.error("Error fetching data:", error);
+    //         }
+    //     };
 
         fetchData();
     }, []);
