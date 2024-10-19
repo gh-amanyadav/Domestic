@@ -42,8 +42,7 @@ const SuperAdminNavbar = () => {
     "Profile",
     "Customer Info",
     "Admin Info",
-    "Live Data",
-    "Recharge",
+    "Plans",
     "Show Transaction",
   ];
 

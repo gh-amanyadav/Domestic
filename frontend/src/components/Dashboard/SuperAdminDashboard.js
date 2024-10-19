@@ -1,14 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import SuperAdminNavbar from '../Navbar/Superadmin-Navbar'; // Navbar component
-import DeviceTable from '../DeviceTable'; // New component for device table
+import SuperAdminNavbar from '../Navbar/Superadmin-Navbar';
+import DeviceTable from '../DeviceTable';
 import { getAllDevices } from '../../services/deviceService';
+import GraphsComponent from '../Dashboard/SuperAdminGraph'; // Importing the SuperAdminGraph
 
 const SuperAdminDashboard = () => {
     const [deviceData, setDeviceData] = useState([]);
-    const [loading, setLoading] = useState(true); // For loading state
-    const [error, setError] = useState(null); // For error handling
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState(''); // State to track search query
 
     const token = localStorage.getItem('token');
+
+    // Sample data for graphs (replace with real data later)
+    const adminCount = 10; // Display as number, not a graph
+    const customerCount = 50; // Display as number, not a graph
+
+    const adminGrowthData = {
+        labels: ['January', 'February', 'March'],
+        datasets: [{ label: 'Admin Growth', data: [3, 6, 10], borderColor: 'rgba(75, 192, 192, 0.6)', fill: false }]
+    };
+
+    const customerGrowthData = {
+        labels: ['January', 'February', 'March'],
+        datasets: [{ label: 'Customer Growth', data: [20, 30, 50], borderColor: 'rgba(153, 102, 255, 0.6)', fill: false }]
+    };
 
     useEffect(() => {
         const fetchDeviceData = async () => {
@@ -27,24 +43,53 @@ const SuperAdminDashboard = () => {
         fetchDeviceData();
     }, [token]);
 
+    // Dynamic search functionality to filter device/organization data
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    // Safely filter device data based on organization name
+    const filteredData = deviceData.filter(
+        (device) => device?.organizationName && device.organizationName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (loading) {
-        return <div>Loading...</div>; // Show loading message
+        return <div>Loading...</div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>; // Show error message if fetch fails
+        return <div>Error: {error}</div>;
     }
 
     return (
         <div>
-            <SuperAdminNavbar /> {/* Reusing the navbar */}
+            <SuperAdminNavbar />
             <main style={styles.mainContent}>
-                <div style={styles.container}>
-                    <h2 style={styles.pageHeading}>Device Information</h2>
-                    {/* Passing fetched data to DeviceTable component */}
-                    <DeviceTable data={deviceData} />
+                {/* Search box for filtering organizations */}
+                <div style={styles.searchContainer}>
+                    <h2>Search Organization</h2>
+                    <input
+                        type="text"
+                        placeholder="Search by Organization Name..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        style={styles.searchBox}
+                    />
                 </div>
+                
+                {/* Graphs displaying admin and customer counts and growth */}
+                <GraphsComponent 
+                    adminCount={adminCount} 
+                    customerCount={customerCount} 
+                    adminGrowthData={adminGrowthData} 
+                    customerGrowthData={customerGrowthData} 
+                />
+
+                {/* Uncomment this if you want to display the filtered device data */}
+                {/* <div style={styles.container}>
+                    <h2 style={styles.pageHeading}>Device Information</h2>
+                    <DeviceTable data={filteredData} />
+                </div> */}
             </main>
         </div>
     );
@@ -57,6 +102,21 @@ const styles = {
         backgroundColor: '#f9f9f9',
         minHeight: '100vh',
         paddingTop: '7rem',
+    },
+    searchContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginBottom: '2rem',
+    },
+    searchBox: {
+        width: '100%',
+        maxWidth: '400px',
+        padding: '0.5rem 1rem',
+        fontSize: '1rem',
+        borderRadius: '0.5rem',
+        border: '1px solid #ccc',
+        marginTop: '1rem',
     },
     container: {
         display: 'flex',

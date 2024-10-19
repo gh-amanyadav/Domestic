@@ -38,7 +38,7 @@ const AdminNavbar = () => {
     setMobileMenuVisible(false);
   };
 
-  const navItems = ["Profile", "Customer Info", "Live Data", "Recharge", "Show Transaction"];
+  const navItems = ["Profile", "Customer Info", "Plans", "Live Data", "Show Transaction"];
 
   return (
     <div>

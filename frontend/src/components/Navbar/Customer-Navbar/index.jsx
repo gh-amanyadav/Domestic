@@ -52,7 +52,7 @@ const CustomerNavbar = () => {
         {!isMobile ? (
           <div style={styles.navItems}>
             <ul style={styles.navList}>
-              {["Profile", "Live Data", "Recharge", "Transaction"].map(
+              {["Profile", "Live Data", "Plans", "Transaction"].map(
                 (item, index) => (
                   <li
                     style={styles.navListItem}
@@ -128,7 +128,7 @@ const CustomerNavbar = () => {
           </div>
           <div style={styles.mobileNavItems}>
             <ul style={styles.mobileNavList}>
-              {["Profile", "Live Data", "Recharge", "Transaction"].map(
+              {["Profile", "Live Data", "Plans", "Transaction"].map(
                 (item, index) => (
                   <li
                     style={styles.mobileNavItem}

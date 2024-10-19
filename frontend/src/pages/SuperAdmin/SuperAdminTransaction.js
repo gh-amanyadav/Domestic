@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
+import { useNavigate } from 'react-router-dom';
 
+// Define your styles here
 const styles = {
     body: {
         fontFamily: 'Arial, sans-serif',
@@ -13,7 +13,7 @@ const styles = {
         width: '100%',
         maxWidth: '1300px',
         margin: '20px auto',
-        background: '#fff',
+        backgroundColor: '#ffffff',
         padding: '20px',
         boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
         boxSizing: 'border-box',
@@ -32,10 +32,6 @@ const styles = {
         borderRadius: '4px',
         cursor: 'pointer',
         fontSize: '1rem',
-        transition: 'background-color 0.3s',
-    },
-    returnButtonHover: {
-        backgroundColor: '#0056b3',
     },
     header: {
         textAlign: 'center',
@@ -45,9 +41,6 @@ const styles = {
     searchBox: {
         marginBottom: '20px',
         textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
     },
     searchInput: {
         padding: '10px',
@@ -66,10 +59,6 @@ const styles = {
         cursor: 'pointer',
         marginLeft: '10px',
         fontSize: '1rem',
-        transition: 'background-color 0.3s',
-    },
-    searchButtonHover: {
-        backgroundColor: '#0056b3',
     },
     tableContainer: {
         overflowX: 'auto',
@@ -80,13 +69,13 @@ const styles = {
         width: '100%',
         borderCollapse: 'collapse',
     },
-    tableTh: {
+    th: {
         border: '1px solid #ddd',
         padding: '10px',
         textAlign: 'center',
         backgroundColor: '#f4f4f4',
     },
-    tableTd: {
+    td: {
         border: '1px solid #ddd',
         padding: '10px',
         textAlign: 'center',
@@ -107,158 +96,130 @@ const styles = {
         padding: '10px 20px',
         borderRadius: '4px',
         cursor: 'pointer',
-        transition: 'background-color 0.3s',
-    },
-    downloadButtonHover: {
-        backgroundColor: '#005700',
-    },
-    '@media (max-width: 768px)': {
-        container: {
-            padding: '15px',
-            margin: '10px',
-        },
-        searchBox: {
-            flexDirection: 'column',
-            alignItems: 'center',
-        },
-        searchInput: {
-            marginBottom: '10px',
-        },
-        searchButton: {
-            width: '100%',
-            marginLeft: 0,
-        },
-    },
-    '@media (max-width: 480px)': {
-        header: {
-            fontSize: '1.5rem',
-        },
-        searchInput: {
-            fontSize: '0.875rem',
-            padding: '8px',
-        },
-        searchButton: {
-            fontSize: '0.875rem',
-            padding: '8px',
-            margin: '10px 0 0 0',
-        },
     },
 };
 
-const SuperAdminTransaction = () => {
+const Transaction = () => {
     const [data, setData] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate(); // Hook for navigation
 
-    // Fetch data from your API
+    // Function to fetch transaction data from the API
     const fetchData = async () => {
         try {
-            const response = await fetch('/api/transactions'); // Replace with your API endpoint
+            const response = await fetch('YOUR_API_ENDPOINT'); // Replace with your API endpoint
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const result = await response.json();
-            setData(result.transactions); // Adjust based on your API response structure
+            setData(result); // Assume result is an array of transactions
         } catch (error) {
             console.error('Error fetching data:', error);
+            // Handle error accordingly (e.g., show a notification or error message)
         }
     };
 
     useEffect(() => {
-        fetchData();
-    }, []); // Fetch data on component mount
+        fetchData(); // Fetch data when component mounts
+    }, []);
 
     const handleSearch = () => {
-        console.log('Search for:', searchQuery);
-        // Implement search functionality as needed
-    };
+        const query = searchTerm.toLowerCase();
+        console.log('Search for:', query);
 
-    const handleDownload = () => {
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-        XLSX.writeFile(wb, 'transactions_report.xlsx');
+        // Filter the fetched data based on the search term
+        const filteredData = data.filter(row =>
+            row.deviceId.toLowerCase().includes(query) ||
+            row.emailid.toLowerCase().includes(query) ||
+            row.txnid.toLowerCase().includes(query)
+        );
+
+        setData(filteredData);
     };
 
     const redirectToDashboard = () => {
-        window.location.href = '/admin';
+        navigate('/superadmin'); // Update to the correct path
+    };
+
+    const handleDownload = () => {
+        console.log('Download clicked');
+        // Implement your download logic here
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.returnBox}>
-                <button
-                    style={styles.returnButton}
-                    onClick={redirectToDashboard}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.returnButtonHover.backgroundColor}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.returnButton.backgroundColor}
-                >
-                    Return
-                </button>
-            </div>
-            <h1 style={styles.header}>Transactions</h1>
-            <div style={styles.searchBox}>
-                <input
-                    type="text"
-                    id="searchBox"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={styles.searchInput}
-                />
-                <button
-                    id="searchButton"
-                    onClick={handleSearch}
-                    style={styles.searchButton}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.searchButtonHover.backgroundColor}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.searchButton.backgroundColor}
-                >
-                    Search
-                </button>
-            </div>
-            <div style={styles.tableContainer}>
-                <table style={styles.table} id="customerTable">
-                    <thead>
-                        <tr>
-                            <th style={styles.tableTh}>S.No</th>
-                            <th style={styles.tableTh}>DateTime</th>
-                            <th style={styles.tableTh}>Device ID</th>
-                            <th style={styles.tableTh}>Username</th>
-                            <th style={styles.tableTh}>Debit</th>
-                            <th style={styles.tableTh}>Credit</th>
-                            <th style={styles.tableTh}>Available Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.length > 0 ? (
-                            data.map((row, index) => (
-                                <tr key={index}>
-                                    <td style={styles.tableTd}>{index + 1}</td>
-                                    <td style={styles.tableTd}>{new Date(row.datetime).toLocaleString()}</td> {/* Format DateTime */}
-                                    <td style={styles.tableTd}>{row.deviceId}</td>
-                                    <td style={styles.tableTd}>{row.username}</td>
-                                    <td style={styles.tableTd}>{row.debit}</td>
-                                    <td style={styles.tableTd}>{row.credit}</td>
-                                    <td style={styles.tableTd}>{row.balance}</td>
-                                </tr>
-                            ))
-                        ) : (
+        <div style={styles.body}>
+            <div style={styles.container}>
+                <div style={styles.returnBox}>
+                    <button
+                        style={styles.returnButton}
+                        onClick={redirectToDashboard}
+                    >
+                        Return
+                    </button>
+                </div>
+                <h1 style={styles.header}>Transactions</h1>
+                <div style={styles.searchBox}>
+                    <input
+                        type="text"
+                        id="searchBox"
+                        placeholder="Search..."
+                        style={styles.searchInput}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button
+                        id="searchButton"
+                        style={styles.searchButton}
+                        onClick={handleSearch}
+                    >
+                        Search
+                    </button>
+                </div>
+                <div style={styles.tableContainer}>
+                    <table style={styles.table}>
+                        <thead>
                             <tr>
-                                <td colSpan="7" style={styles.emptyRow}>No data available</td>
+                                <th style={styles.th}>S.No</th>
+                                <th style={styles.th}>DateTime</th>
+                                <th style={styles.th}>Device ID</th>
+                                <th style={styles.th}>Email ID</th>
+                                <th style={styles.th}>Total Liters</th>
+                                <th style={styles.th}>Total Cost</th>
+                                <th style={styles.th}>TXN ID</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-            <div style={styles.downloadContainer}>
-                <button
-                    id="downloadButton"
-                    onClick={handleDownload}
-                    style={styles.downloadButton}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.downloadButtonHover.backgroundColor}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.downloadButton.backgroundColor}
-                >
-                    Download
-                </button>
+                        </thead>
+                        <tbody>
+                            {data.length ? (
+                                data.map((row, index) => (
+                                    <tr key={index}>
+                                        <td style={styles.td}>{index + 1}</td>
+                                        <td style={styles.td}>{row.datetime}</td>
+                                        <td style={styles.td}>{row.deviceId}</td>
+                                        <td style={styles.td}>{row.emailid}</td>
+                                        <td style={styles.td}>{row.totalliters}</td>
+                                        <td style={styles.td}>{row.totalcost}</td>
+                                        <td style={styles.td}>{row.txnid}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr style={styles.emptyRow}>
+                                    <td colSpan="7">No data available</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <div style={styles.downloadContainer}>
+                    <button
+                        style={styles.downloadButton}
+                        onClick={handleDownload}
+                    >
+                        Download
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
-export default SuperAdminTransaction;
+export default Transaction;

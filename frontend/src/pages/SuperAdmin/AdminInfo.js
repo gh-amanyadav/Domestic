@@ -179,7 +179,7 @@ const AdminInfo = () => {
     };
 
     const redirectToDashboard = () => {
-        window.location.href = '/admin';
+        window.location.href = '/superadmin';
     };
 
     return (

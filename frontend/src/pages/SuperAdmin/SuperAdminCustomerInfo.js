@@ -5,12 +5,6 @@ import { useSelector } from 'react-redux';
 import { getallCustomer } from '../../services/customerService';
 
 const styles = {
-    body: {
-        fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#f4f4f4',
-        margin: 0,
-        padding: 0,
-    },
     container: {
         width: '100%',
         maxWidth: '1300px',
@@ -44,12 +38,29 @@ const styles = {
         marginBottom: '20px',
         fontSize: '1.75rem',
     },
-    searchBox: {
-        marginBottom: '20px',
-        textAlign: 'center',
+    searchBoxContainer: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '20px',
+    },
+    searchBoxRow: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '20px',
+        width: '100%',
+        maxWidth: '1000px',
+    },
+    searchBox: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        flex: 1,
+    },
+    searchHeading: {
+        marginBottom: '10px',
+        fontWeight: 'bold',
     },
     searchInput: {
         padding: '10px',
@@ -66,7 +77,7 @@ const styles = {
         color: 'white',
         borderRadius: '4px',
         cursor: 'pointer',
-        marginLeft: '10px',
+        marginTop: '10px',
         fontSize: '1rem',
         transition: 'background-color 0.3s',
     },
@@ -119,7 +130,7 @@ const styles = {
             padding: '15px',
             margin: '10px',
         },
-        searchBox: {
+        searchBoxRow: {
             flexDirection: 'column',
             alignItems: 'center',
         },
@@ -149,13 +160,24 @@ const styles = {
 
 const SuperAdminCustomerInfo = () => {
     const [data, setData] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchValues, setSearchValues] = useState({
+        organization: '',
+        customer: '',
+    });
+
     const { token } = useSelector(state => state.auth);
+
+    // Define search fields dynamically
+    const searchFields = [
+        { label: 'Organization Search', name: 'organization', placeholder: 'Search by Organization Name' },
+        { label: 'Customer Search', name: 'customer', placeholder: 'Search by Customer Name' },
+    ];
+
     // Fetch customer data from your API
     const fetchData = async () => {
         try {
-            const response = await getallCustomer(token); // Replace with your actual API endpoint
-            setData(response); // Adjust based on your API response structure
+            const response = await getallCustomer(token);
+            setData(response);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -163,11 +185,20 @@ const SuperAdminCustomerInfo = () => {
 
     useEffect(() => {
         fetchData();
-    }, []); // Fetch data on component mount
+    }, []);
 
-    const handleSearch = () => {
-        console.log('Search for:', searchQuery);
-        // Implement search functionality as needed
+    // Handle dynamic search
+    const handleSearch = (searchType) => {
+        console.log(`${searchType} Search for:`, searchValues[searchType]);
+        // Implement actual search logic here for each searchType
+    };
+
+    // Handle input change dynamically
+    const handleInputChange = (e, searchType) => {
+        setSearchValues(prevValues => ({
+            ...prevValues,
+            [searchType]: e.target.value,
+        }));
     };
 
     const handleDownload = () => {
@@ -178,7 +209,7 @@ const SuperAdminCustomerInfo = () => {
     };
 
     const redirectToDashboard = () => {
-        window.location.href = '/admin';
+        window.location.href = '/superadmin';
     };
 
     return (
@@ -194,25 +225,33 @@ const SuperAdminCustomerInfo = () => {
                 </button>
             </div>
             <h1 style={styles.header}>Customer Information</h1>
-            <div style={styles.searchBox}>
-                <input
-                    type="text"
-                    id="searchBox"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={styles.searchInput}
-                />
-                <button
-                    id="searchButton"
-                    onClick={handleSearch}
-                    style={styles.searchButton}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.searchButtonHover.backgroundColor}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.searchButton.backgroundColor}
-                >
-                    Search
-                </button>
+            
+            <div style={styles.searchBoxContainer}>
+                <div style={styles.searchBoxRow}>
+                    {/* Dynamically render search fields */}
+                    {searchFields.map((field) => (
+                        <div style={styles.searchBox} key={field.name}>
+                            <p style={styles.searchHeading}>{field.label}</p>
+                            <input
+                                type="text"
+                                placeholder={field.placeholder}
+                                value={searchValues[field.name]}
+                                onChange={(e) => handleInputChange(e, field.name)}
+                                style={styles.searchInput}
+                            />
+                            <button
+                                style={styles.searchButton}
+                                onClick={() => handleSearch(field.name)}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.searchButtonHover.backgroundColor}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.searchButton.backgroundColor}
+                            >
+                                Search
+                            </button>
+                        </div>
+                    ))}
+                </div>
             </div>
+
             <div style={styles.tableContainer}>
                 <table style={styles.table} id="customerTable">
                     <thead>
@@ -222,7 +261,6 @@ const SuperAdminCustomerInfo = () => {
                             <th style={styles.tableTh}>Email</th>
                             <th style={styles.tableTh}>Phone</th>
                             <th style={styles.tableTh}>Location</th>
-                            {/* Add other customer fields as necessary */}
                         </tr>
                     </thead>
                     <tbody>
@@ -234,7 +272,6 @@ const SuperAdminCustomerInfo = () => {
                                     <td style={styles.tableTd}>{row.email}</td>
                                     <td style={styles.tableTd}>{row.phoneNo}</td>
                                     <td style={styles.tableTd}>{row.location}</td>
-                                    {/* Adjust based on your customer data structure */}
                                 </tr>
                             ))
                         ) : (
