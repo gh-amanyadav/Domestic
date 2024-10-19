@@ -179,6 +179,7 @@ const styles = {
 
 const CustomerInfo = () => {
     const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]); // State for filtered data
     const [searchQuery, setSearchQuery] = useState('');
     const { token } = useSelector(state => state.auth);
 
@@ -187,6 +188,7 @@ const CustomerInfo = () => {
         try {
             const response = await getallCustomer(token); // Replace with your actual API endpoint
             setData(response); // Adjust based on your API response structure
+            setFilteredData(response); // Initialize filtered data
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -196,9 +198,20 @@ const CustomerInfo = () => {
         fetchData();
     }, []); // Fetch data on component mount
 
+    useEffect(() => {
+        handleSearch(); // Re-filter data whenever the search query changes
+    }, [searchQuery, data]); // Add data to dependencies to re-filter when it changes
+
     const handleSearch = () => {
-        console.log('Search for:', searchQuery);
-        // Implement search functionality as needed
+        // Filter data based on search query
+        const lowerCaseQuery = searchQuery.toLowerCase();
+        const filtered = data.filter(customer =>
+            customer.username.toLowerCase().includes(lowerCaseQuery) ||
+            customer.email.toLowerCase().includes(lowerCaseQuery) ||
+            customer.phoneNo.includes(searchQuery) || // Assuming phoneNo is a string or numeric
+            customer.location.toLowerCase().includes(lowerCaseQuery)
+        );
+        setFilteredData(filtered);
     };
 
     const handleDownload = () => {
@@ -247,18 +260,18 @@ const CustomerInfo = () => {
                     id="searchBox"
                     placeholder="Search..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => setSearchQuery(e.target.value)} // Update search query on input change
                     style={styles.searchInput}
                 />
-                <button
+                {/* <button
                     id="searchButton"
-                    onClick={handleSearch}
+                    onClick={handleSearch} // You can keep this for explicit search triggering if needed
                     style={styles.searchButton}
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.searchButtonHover.backgroundColor}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.searchButton.backgroundColor}
                 >
                     Search
-                </button>
+                </button> */}
             </div>
             <div style={styles.addCustomerContainer}>
                 <Link to="/admin/create-customer" style={styles.addCustomerButton}>
@@ -275,12 +288,11 @@ const CustomerInfo = () => {
                             <th style={styles.tableTh}>Phone</th>
                             <th style={styles.tableTh}>Location</th>
                             <th style={styles.tableTh}>Actions</th>
-                            {/* Add other customer fields as necessary */}
                         </tr>
                     </thead>
                     <tbody>
-                        {data.length > 0 ? (
-                            data.map((row, index) => (
+                        {filteredData.length > 0 ? (
+                            filteredData.map((row, index) => (
                                 <tr key={index}>
                                     <td style={styles.tableTd}>{index + 1}</td>
                                     <td style={styles.tableTd}>{row.username}</td>
@@ -301,7 +313,6 @@ const CustomerInfo = () => {
                                             Delete
                                         </button>
                                     </td>
-                                    {/* Adjust based on your customer data structure */}
                                 </tr>
                             ))
                         ) : (

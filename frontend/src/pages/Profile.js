@@ -1,8 +1,9 @@
-// Profile.jsx
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Profile = () => {
+    const navigate = useNavigate(); // Initialize navigate
+
     // State variables for profile fields
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -55,8 +56,7 @@ const Profile = () => {
             const data = await res.json();
             if (data.success) {
                 alert('Profile updated successfully!');
-                // Optionally, reset the password field
-                setPassword('');
+                setPassword(''); // Optionally, reset the password field
             } else {
                 throw new Error(data.message || 'Update failed');
             }
@@ -95,6 +95,11 @@ const Profile = () => {
         }
     };
 
+    // Handle back button click
+    const handleBackClick = () => {
+        navigate(-1); // This goes back to the previous page
+    };
+
     // Styles object
     const styles = {
         container: {
@@ -113,6 +118,7 @@ const Profile = () => {
             width: '100%',
             maxWidth: '500px',
             boxSizing: 'border-box',
+            position: 'relative',
         },
         title: {
             fontSize: '1.875rem',
@@ -194,11 +200,28 @@ const Profile = () => {
         deleteButtonActive: {
             transform: 'scale(0.98)',
         },
+        backButton: {
+            position: 'absolute',
+            top: '1rem',
+            left: '1rem',
+            backgroundColor: '#1F2937',
+            color: '#FFFFFF',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.25rem',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            border: 'none',
+        },
     };
 
     return (
         <div style={styles.container}>
             <div style={styles.card}>
+                {/* Back Button */}
+                <button style={styles.backButton} onClick={handleBackClick}>
+                    Back
+                </button>
+
                 <h1 style={styles.title}>User Profile</h1>
                 <form style={styles.form} onSubmit={handleUpdate}>
                     {/* Username Field */}
@@ -272,12 +295,12 @@ const Profile = () => {
                         style={styles.submitButton}
                         disabled={isSubmitting}
                         onMouseEnter={(e) =>
-                        (e.target.style.backgroundColor =
-                            styles.submitButtonHover.backgroundColor)
+                            (e.target.style.backgroundColor =
+                                styles.submitButtonHover.backgroundColor)
                         }
                         onMouseLeave={(e) =>
-                        (e.target.style.backgroundColor =
-                            styles.submitButton.backgroundColor)
+                            (e.target.style.backgroundColor =
+                                styles.submitButton.backgroundColor)
                         }
                         onMouseDown={(e) =>
                             (e.target.style.transform = styles.submitButtonActive.transform)
@@ -296,12 +319,12 @@ const Profile = () => {
                         onClick={handleDelete}
                         disabled={isSubmitting}
                         onMouseEnter={(e) =>
-                        (e.target.style.backgroundColor =
-                            styles.deleteButtonHover.backgroundColor)
+                            (e.target.style.backgroundColor =
+                                styles.deleteButtonHover.backgroundColor)
                         }
                         onMouseLeave={(e) =>
-                        (e.target.style.backgroundColor =
-                            styles.deleteButton.backgroundColor)
+                            (e.target.style.backgroundColor =
+                                styles.deleteButton.backgroundColor)
                         }
                         onMouseDown={(e) =>
                             (e.target.style.transform = styles.deleteButtonActive.transform)

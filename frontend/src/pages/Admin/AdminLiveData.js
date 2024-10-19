@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import moment from "moment";
 import { useSelector } from "react-redux";
 import { getAllLiveData } from "../../services/liveDataService";
 
 const AdminLiveData = () => {
     const [tableData, setTableData] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [yearly, setYearly] = useState("");
-    const [monthly, setMonthly] = useState("");
-    const [weekly, setWeekly] = useState("");
     const [filteredData, setFilteredData] = useState([]);
     const { token } = useSelector(state => state.auth);
 
@@ -29,7 +25,7 @@ const AdminLiveData = () => {
 
     useEffect(() => {
         filterTableData();
-    }, [searchQuery, yearly, monthly, weekly]);
+    }, [searchQuery]);
 
     const filterTableData = () => {
         let data = [...tableData];
@@ -40,57 +36,28 @@ const AdminLiveData = () => {
             );
         }
 
-        if (yearly) {
-            data = data.filter(
-                (item) => moment(item.datetime).format("YYYY") === yearly.split("-")[0]
-            );
-        }
-
-        if (monthly) {
-            data = data.filter(
-                (item) => moment(item.datetime).format("MMMM") === monthly
-            );
-        }
-
-        if (weekly) {
-            const weekNumber = parseInt(weekly.split(" ")[1], 10);
-            data = data.filter((item) => {
-                const dayOfMonth = moment(item.datetime).date();
-                let calculatedWeekNumber;
-
-                if (dayOfMonth >= 1 && dayOfMonth <= 7) {
-                    calculatedWeekNumber = 1;
-                } else if (dayOfMonth >= 8 && dayOfMonth <= 14) {
-                    calculatedWeekNumber = 2;
-                } else if (dayOfMonth >= 15 && dayOfMonth <= 21) {
-                    calculatedWeekNumber = 3;
-                } else if (dayOfMonth >= 22 && dayOfMonth <= 28) {
-                    calculatedWeekNumber = 4;
-                } else if (dayOfMonth >= 29) {
-                    calculatedWeekNumber = 5;
-                }
-
-                return calculatedWeekNumber === weekNumber;
-            });
-        }
-
         setFilteredData(data);
     };
 
     const styles = {
-        container: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            width: "100%",
-            maxWidth: "1000px",
-            margin: "0 auto",
+        outerContainer: {
+            border: "2px solid black", // Black border around the container
+            borderRadius: "0.5rem",
             padding: "1rem",
+            margin: "0 auto",
+            maxWidth: "1000px",
+        },
+        headerContainer: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "1rem",
         },
         title: {
             fontSize: "2rem",
             color: "#1F2937",
-            marginBottom: "1rem",
+            textAlign: "center", // Center the title
+            flexGrow: 1,
         },
         searchSection: {
             display: "flex",
@@ -99,11 +66,6 @@ const AdminLiveData = () => {
             marginBottom: "1rem",
         },
         searchInput: {
-            padding: "0.75rem",
-            borderRadius: "0.5rem",
-            border: "1px solid #D1D5DB",
-        },
-        searchSelect: {
             padding: "0.75rem",
             borderRadius: "0.5rem",
             border: "1px solid #D1D5DB",
@@ -135,7 +97,8 @@ const AdminLiveData = () => {
             color: status === "Active" ? "green" : "red",
         }),
         downloadButton: {
-            marginTop: "1rem",
+            display: "block",
+            margin: "1rem auto",
             padding: "0.75rem 1.5rem",
             backgroundColor: "#1F2937",
             color: "white",
@@ -143,11 +106,29 @@ const AdminLiveData = () => {
             borderRadius: "0.5rem",
             cursor: "pointer",
         },
+        backButton: {
+            marginRight: "1rem",
+            padding: "0.75rem 1.5rem",
+            backgroundColor: "#000000",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "0.5rem",
+            cursor: "pointer",
+        },
+    };
+
+    const handleBack = () => {
+        window.history.back(); // Redirect to the previous page
     };
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>LIVE DATA</h1>
+        <div style={styles.outerContainer}>
+            <div style={styles.headerContainer}>
+                <button style={styles.backButton} onClick={handleBack}>
+                    Back
+                </button>
+                <h1 style={styles.title}>LIVE DATA</h1>
+            </div>
             <div style={styles.searchSection}>
                 <input
                     type="text"
@@ -156,52 +137,6 @@ const AdminLiveData = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <select
-                    style={styles.searchSelect}
-                    value={yearly}
-                    onChange={(e) => setYearly(e.target.value)}
-                >
-                    <option value="" disabled selected>
-                        Yearly
-                    </option>
-                    <option value="2024-2025">2024-2025</option>
-                    <option value="2025-2026">2025-2026</option>
-                </select>
-                <select
-                    style={styles.searchSelect}
-                    value={monthly}
-                    onChange={(e) => setMonthly(e.target.value)}
-                >
-                    <option value="" disabled selected>
-                        Monthly
-                    </option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    <option value="April">April</option>
-                    <option value="May">May</option>
-                    <option value="June">June</option>
-                    <option value="July">July</option>
-                    <option value="August">August</option>
-                    <option value="September">September</option>
-                    <option value="October">October</option>
-                    <option value="November">November</option>
-                    <option value="December">December</option>
-                </select>
-                <select
-                    style={styles.searchSelect}
-                    value={weekly}
-                    onChange={(e) => setWeekly(e.target.value)}
-                >
-                    <option value="" disabled selected>
-                        Weekly
-                    </option>
-                    <option value="Week 1">Week 1</option>
-                    <option value="Week 2">Week 2</option>
-                    <option value="Week 3">Week 3</option>
-                    <option value="Week 4">Week 4</option>
-                    <option value="Week 5">Week 5</option>
-                </select>
                 <button style={styles.searchButton} onClick={filterTableData}>
                     Search
                 </button>

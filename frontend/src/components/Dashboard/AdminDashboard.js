@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AdminNavbar from '../Navbar/Admin-Navbar'; // Navbar component
 import { getAllDevices, deleteDevice } from '../../services/deviceService';
-import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
     const [deviceData, setDeviceData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]); // New state for filtered data
     const [loading, setLoading] = useState(true); // For loading state
     const [error, setError] = useState(null); // For error handling
     const [searchQuery, setSearchQuery] = useState('');
@@ -16,11 +16,22 @@ const AdminDashboard = () => {
         fetchDeviceData();
     }, [token]);
 
+    useEffect(() => {
+        // Filter deviceData whenever searchQuery changes
+        const filtered = deviceData.filter(device =>
+            device.user_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            device.device_plan.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            device.phone_no.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredData(filtered);
+    }, [searchQuery, deviceData]);
+
     const fetchDeviceData = async () => {
         try {
             setLoading(true);
             const data = await getAllDevices(token);
             setDeviceData(data);
+            setFilteredData(data); // Initialize filteredData with all devices
         } catch (err) {
             setError(err.message || 'An error occurred while fetching device data');
         } finally {
@@ -28,13 +39,8 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleSearch = () => {
-        console.log('Search for:', searchQuery);
-        // Implement search functionality as needed
-    };
-
     const handleDownload = () => {
-        const ws = XLSX.utils.json_to_sheet(deviceData);
+        const ws = XLSX.utils.json_to_sheet(filteredData); // Download filtered data
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
         XLSX.writeFile(wb, 'devices_report.xlsx');
@@ -69,11 +75,20 @@ const AdminDashboard = () => {
             <AdminNavbar /> {/* Reusing the navbar */}
             <main style={styles.mainContent}>
                 <div style={styles.container}>
-                    <h2 style={styles.pageHeading}>Device Information</h2>
-                    <div style={styles.addDeviceContainer}>
+                    <div style={styles.headerContainer}>
                         <Link to="/admin/createDevice" style={styles.addDeviceButton}>
                             Create Device
                         </Link>
+                        <h2 style={styles.pageHeading}>Device Information</h2>
+                        <div style={styles.searchContainer}>
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                style={styles.searchInput}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)} // Update search query dynamically
+                            />
+                        </div>
                     </div>
                     <div style={styles.tableContainer}>
                         <table style={styles.table} id="deviceTable">
@@ -88,8 +103,8 @@ const AdminDashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {deviceData.length > 0 ? (
-                                    deviceData.map((device, index) => (
+                                {filteredData.length > 0 ? (
+                                    filteredData.map((device, index) => (
                                         <tr key={index}>
                                             <td style={styles.tableTd}>{index + 1}</td>
                                             <td style={styles.tableTd}>{device.user_id}</td>
@@ -155,42 +170,31 @@ const styles = {
         borderRadius: '0.75rem',
         padding: '2rem',
     },
+    headerContainer: {
+        display: 'flex',
+        justifyContent: 'center', // Center the items
+        alignItems: 'center', // Center items vertically
+        width: '100%', // Take full width
+        marginBottom: '20px',
+    },
     pageHeading: {
         fontSize: '1.8rem',
         color: '#333',
         fontWeight: 'bold',
+        margin: '0 20px', // Add margin to center spacing
         textAlign: 'center',
-        marginBottom: '2rem',
     },
-    searchBox: {
-        marginBottom: '20px',
-        textAlign: 'center',
+    searchContainer: {
         display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
+        alignItems: 'center',
+        maxWidth: '300px', // Limit the width of the search box
     },
     searchInput: {
         padding: '10px',
         width: '100%',
-        maxWidth: '300px',
         border: '1px solid #ccc',
         borderRadius: '4px',
         boxSizing: 'border-box',
-    },
-    searchButton: {
-        padding: '10px 20px',
-        border: 'none',
-        backgroundColor: '#007bff',
-        color: 'white',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        marginLeft: '10px',
-        fontSize: '1rem',
-        transition: 'background-color 0.3s',
-    },
-    addDeviceContainer: {
-        marginBottom: '20px',
-        textAlign: 'right',
     },
     addDeviceButton: {
         padding: '10px 20px',
@@ -199,6 +203,7 @@ const styles = {
         textDecoration: 'none',
         borderRadius: '4px',
         fontWeight: 'bold',
+        marginRight: '20px', // Add space between button and heading
     },
     tableContainer: {
         overflowX: 'auto',
